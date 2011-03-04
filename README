@@ -1,0 +1,12 @@
+# ring-cors
+
+Ring middleware for Cross-Origin Resource Sharing.
+
+## Usage
+
+
+## License
+
+Copyright (C) 2011 Roman Scherer
+
+Distributed under the Eclipse Public License, the same as Clojure.
