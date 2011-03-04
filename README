@@ -8,6 +8,10 @@ Via Leiningen: [ring-cors "0.0.1-SNAPSHOT"]
 
 ## Usage
 
+  (def handler
+    (-> my-routes
+        (wrap-cors
+         :access-control-allow-origin #"http://example.com")))
 
 ## License
 
