@@ -2,6 +2,10 @@
 
 Ring middleware for Cross-Origin Resource Sharing.
 
+## Installation
+
+Via Leiningen: [ring-cors "0.0.1-SNAPSHOT"]
+
 ## Usage
 
 
