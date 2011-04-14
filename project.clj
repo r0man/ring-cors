@@ -1,4 +1,4 @@
-(defproject ring-cors "0.0.1-SNAPSHOT"
+(defproject ring-cors "0.0.1"
   :description "Ring middleware for Cross-Origin Resource Sharing."
   :url "http://github.com/r0man/ring-cors"
   :dependencies [[org.clojure/clojure "1.2.0"]
