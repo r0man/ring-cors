@@ -3,3 +3,4 @@ pom.xml
 autodoc
 lib
 classes
+/.lein-failures
