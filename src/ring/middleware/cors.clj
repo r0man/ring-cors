@@ -1,12 +1,12 @@
 (ns ring.middleware.cors
   "Ring middleware for Cross-Origin Resource Sharing."
-  (:use [clojure.contrib.string :only (as-str capitalize join split)]))
+  (:use [clojure.string :only (capitalize join split)]))
 
-(defn- origin
+(defn origin
   "Returns the Origin request header."
   [request] (get (:headers request) "origin"))
 
-(defn- allow-request?
+(defn allow-request?
   "Returns true if the request's origin matches the access control
   origin, otherwise false."
   [request access-control]
@@ -15,15 +15,15 @@
     (if (and origin allowed (some #(re-matches % origin) (if (sequential? allowed) allowed [allowed])))
       true false)))
 
-(defn- header-name
+(defn header-name
   "Returns the capitalized header name as a string."
-  [name] (if name (join "-" (map capitalize (split #"-" (as-str name))))))
+  [header] (if header (join "-" (map capitalize (split (name header) #"-")))))
 
-(defn- normalize-headers
+(defn normalize-headers
   "Normalize the headers by converting them to capitalized strings."
   [headers] (reduce #(assoc %1 (header-name (first %2)) (last %2)) {} headers))
 
-(defn- add-access-control
+(defn add-access-control
   "Add the access control headers using the request's origin to the response."
   [request response access-control]
   (if-let [origin (origin request)]

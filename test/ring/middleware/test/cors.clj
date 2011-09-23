@@ -2,13 +2,6 @@
   (:use ring.middleware.cors
         clojure.test))
 
-(defn refer-private [ns]
-  (doseq [[symbol var] (ns-interns ns)]
-    (when (:private (meta var))
-      (intern *ns* symbol var))))
-
-(refer-private 'ring.middleware.cors)
-
 (deftest test-allow-request?
   (testing "with empty vector"
     (is (not (allow-request? {:headers {"origin" "http://eample.com"}} {:access-control-allow-origin []}))))
