@@ -1,4 +1,4 @@
-(defproject ring-cors "0.0.2-SNAPSHOT"
+(defproject ring-cors "0.0.2"
   :description "Ring middleware for Cross-Origin Resource Sharing."
   :url "http://github.com/r0man/ring-cors"
   :autodoc {:name "Cross-Origin Resource Sharing"
@@ -11,5 +11,5 @@
             :output-path "autodoc"
             :namespaces-to-document ["ring"]
             :load-except-list [#"/test/" #"project\.clj"]}
-  :dependencies [[org.clojure/clojure "1.3.0-RC0"]]
+  :dependencies [[org.clojure/clojure "1.3.0"]]
   :multi-deps {"1.2.1" [[org.clojure/clojure "1.2.1"]]})
