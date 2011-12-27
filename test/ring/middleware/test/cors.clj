@@ -43,13 +43,17 @@
            (add-access-control {:headers {"origin" origin}} {} {:access-control-allow-origin #".*\.example.com"})))))
 
 (deftest test-wrap-cors
-  (let [response ((wrap-cors
-                   (fn [_] {})
-                   :access-control-allow-origin #".*example.com"
-                   :access-control-request-method "POST"
-                   :access-control-request-headers "X-PINGOTHER")
-                  {:request-method :get :uri "/" :headers {"origin" "http://example.com"}})]
+  (let [response
+        ((wrap-cors
+          (fn [_] {})
+          :access-control-allow-origin #".*example.com"
+          :access-control-expose-headers ["X-Pagination-Page" "X-Pagination-Per-Page" "X-Pagination-Total"]
+          :access-control-request-headers "X-PINGOTHER"
+          :access-control-request-method ["POST" "PUT"])
+         {:request-method :get :uri "/" :headers {"origin" "http://example.com"}})]
     (let [headers (:headers response)]
       (is (= "http://example.com" (get headers "Access-Control-Allow-Origin")))
-      (is (= "POST" (get headers "Access-Control-Request-Method")))
-      (is (= "X-PINGOTHER" (get headers "Access-Control-Request-Headers"))))))
+      (is (= ["POST" "PUT"] (get headers "Access-Control-Request-Method")))
+      (is (= "X-PINGOTHER" (get headers "Access-Control-Request-Headers")))
+      (is (= ["X-Pagination-Page" "X-Pagination-Per-Page" "X-Pagination-Total"]
+             (get headers "Access-Control-Expose-Headers"))))))
