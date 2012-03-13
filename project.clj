@@ -1,15 +1,5 @@
-(defproject ring-cors "0.0.2-SNAPSHOT"
+(defproject ring-cors/ring-cors "0.0.3-SNAPSHOT"
   :description "Ring middleware for Cross-Origin Resource Sharing."
-  :url "http://github.com/r0man/ring-cors"
-  :autodoc {:name "Cross-Origin Resource Sharing"
-            :description "Ring middleware for Cross-Origin Resource Sharing."
-            :copyright "Copyright 2011 Roman Scherer"
-            :root "."
-            :source-path ""
-            :web-src-dir "http://github.com/r0man/ring-cors/blob/"
-            :web-home "http://github.com/r0man/ring-cors"
-            :output-path "autodoc"
-            :namespaces-to-document ["ring"]
-            :load-except-list [#"/test/" #"project\.clj"]}
   :dependencies [[org.clojure/clojure "1.3.0"]]
-  :multi-deps {"1.2.1" [[org.clojure/clojure "1.2.1"]]})
+  :url "http://github.com/r0man/ring-cors"
+  :min-lein-version "2.0.0")
