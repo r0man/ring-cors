@@ -1,6 +1,6 @@
 (ns ring.middleware.cors
   "Ring middleware for Cross-Origin Resource Sharing."
-  (:use [clojure.string :only (capitalize join split)]))
+  (:require [clojure.string :refer [capitalize join split]]))
 
 (defn origin
   "Returns the Origin request header."
