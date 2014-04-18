@@ -1,6 +1,6 @@
-(ns ring.middleware.test.cors
-  (:use ring.middleware.cors
-        clojure.test))
+(ns ring.middleware.cors-test
+  (:require [ring.middleware.cors :refer :all]
+            [clojure.test :refer :all]))
 
 (deftest test-allow-request?
   (testing "with empty vector"

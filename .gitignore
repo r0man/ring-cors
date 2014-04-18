@@ -7,3 +7,4 @@ classes
 /.lein-deps-sum
 /target
 /pom.xml.asc
+/.nrepl-port
