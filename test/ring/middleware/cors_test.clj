@@ -43,17 +43,21 @@
            (add-access-control {:headers {"origin" origin}} {} {:access-control-allow-origin #".*\.example.com"})))))
 
 (deftest test-wrap-cors
-  (let [response
-        ((wrap-cors
-          (fn [_] {})
-          :access-control-allow-origin #".*example.com"
-          :access-control-expose-headers ["X-Pagination-Page" "X-Pagination-Per-Page" "X-Pagination-Total"]
-          :access-control-request-headers "X-PINGOTHER"
-          :access-control-request-method ["POST" "PUT"])
-         {:request-method :get :uri "/" :headers {"origin" "http://example.com"}})]
-    (let [headers (:headers response)]
-      (is (= "http://example.com" (get headers "Access-Control-Allow-Origin")))
-      (is (= ["POST" "PUT"] (get headers "Access-Control-Request-Method")))
-      (is (= "X-PINGOTHER" (get headers "Access-Control-Request-Headers")))
-      (is (= ["X-Pagination-Page" "X-Pagination-Per-Page" "X-Pagination-Total"]
-             (get headers "Access-Control-Expose-Headers"))))))
+  (testing "add CORS headers"
+    (let [response
+          ((wrap-cors
+            (fn [_] {:status 200})
+            :access-control-allow-origin #".*example.com"
+            :access-control-expose-headers ["X-Pagination-Page" "X-Pagination-Per-Page" "X-Pagination-Total"]
+            :access-control-request-headers "X-PINGOTHER"
+            :access-control-request-method ["POST" "PUT"])
+           {:request-method :get :uri "/" :headers {"origin" "http://example.com"}})]
+      (let [headers (:headers response)]
+        (is (= "http://example.com" (get headers "Access-Control-Allow-Origin")))
+        (is (= ["POST" "PUT"] (get headers "Access-Control-Request-Method")))
+        (is (= "X-PINGOTHER" (get headers "Access-Control-Request-Headers")))
+        (is (= ["X-Pagination-Page" "X-Pagination-Per-Page" "X-Pagination-Total"]
+               (get headers "Access-Control-Expose-Headers"))))))
+  (testing "no CORS headers on nil from handler"
+    (is (nil? ((wrap-cors (fn [_] nil) :access-control-allow-origin #".*example.com")
+               {:request-method :get :uri "/" :headers {"origin" "http://example.com"}})))))

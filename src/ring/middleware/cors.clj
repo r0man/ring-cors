@@ -45,6 +45,6 @@ Example:
   (let [access-control (apply hash-map access-control)]
     (fn [request]
       (let [response (handler request)]
-        (if (allow-request? request access-control)
+        (if (and response (allow-request? request access-control))
           (add-access-control request response access-control)
           response)))))
