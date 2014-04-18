@@ -5,6 +5,7 @@ Ring middleware for Cross-Origin Resource Sharing.
 ## Installation
 
 Via Clojars: https://clojars.org/ring-cors
+
 [![Current Version](https://clojars.org/ring-cors/latest-version.svg)](https://clojars.org/ring-cors)
 
 ## Usage
