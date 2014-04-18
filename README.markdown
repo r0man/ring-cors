@@ -8,12 +8,10 @@ Via Clojars: https://clojars.org/ring-cors
 
 ## Usage
 
-    (use 'ring.middleware.cors)
+    (require '[ring.middleware.cors :refer [wrap-cors]])
 
     (def handler
-      (-> my-routes
-          (wrap-cors
-           :access-control-allow-origin #"http://example.com")))
+      (wrap-cors my-routes :access-control-allow-origin #"http://example.com"))
 
 ## License
 
