@@ -1,4 +1,4 @@
-(defproject ring-cors "0.1.1"
+(defproject ring-cors "0.1.2-SNAPSHOT"
   :description "Ring middleware for Cross-Origin Resource Sharing."
   :url "http://github.com/r0man/ring-cors"
   :license {:name "Eclipse Public License"
