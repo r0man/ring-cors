@@ -1,4 +1,6 @@
-# Ring CORS [![Build Status](https://travis-ci.org/r0man/ring-cors.png)](https://travis-ci.org/r0man/ring-cors)
+# Ring CORS
+  [![Build Status](https://travis-ci.org/r0man/ring-cors.png)](https://travis-ci.org/r0man/ring-cors)
+  [![Dependencies Status](http://jarkeeper.com/r0man/ring-cors/status.png)](http://jarkeeper.com/r0man/ring-cors)
 
 Ring middleware for Cross-Origin Resource Sharing.
 
