@@ -21,6 +21,6 @@ Via Clojars: https://clojars.org/ring-cors
 
 ## License
 
-Copyright (C) 2013 Roman Scherer
+Copyright (C) 2013-2014 Roman Scherer
 
 Distributed under the Eclipse Public License, the same as Clojure.
