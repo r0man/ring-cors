@@ -1,6 +1,7 @@
 # Ring CORS
   [![Build Status](https://travis-ci.org/r0man/ring-cors.png)](https://travis-ci.org/r0man/ring-cors)
   [![Dependencies Status](http://jarkeeper.com/r0man/ring-cors/status.png)](http://jarkeeper.com/r0man/ring-cors)
+  [![Gittip](http://img.shields.io/gittip/r0man.svg)](https://www.gittip.com/r0man)
 
 Ring middleware for Cross-Origin Resource Sharing.
 
