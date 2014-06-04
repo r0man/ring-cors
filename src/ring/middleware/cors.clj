@@ -70,7 +70,7 @@
                 (let [header (get (:headers request)
                                   "access-control-request-method")]
                   (assoc request :request-method
-                         (keyword (str/lower-case header))))
+                         (if header (keyword (str/lower-case header)))))
                 access-control))
         {:status 200
          :headers (->> (get (:headers request) "origin")

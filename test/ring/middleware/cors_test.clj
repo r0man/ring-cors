@@ -76,3 +76,8 @@
              {:request-method
               :get :uri "/"
               :headers {"origin" "http://example.com"}}))))
+
+(deftest test-options-without-cors-header
+  (is (nil? ((wrap-cors (fn [_] nil)
+                        :access-control-allow-origin #".*example.com")
+             {:request-method :options :uri "/"}))))
