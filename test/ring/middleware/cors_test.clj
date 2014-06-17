@@ -78,6 +78,16 @@
               :headers {"origin" "http://example.com"}}))))
 
 (deftest test-options-without-cors-header
-  (is (nil? ((wrap-cors (fn [_] nil)
-                        :access-control-allow-origin #".*example.com")
+  (is (nil? ((wrap-cors
+              (fn [_] nil)
+              :access-control-allow-origin #".*example.com")
              {:request-method :options :uri "/"}))))
+
+(deftest test-method-not-allowed
+  (is (nil? ((wrap-cors
+              (fn [_] nil)
+              :access-control-allow-origin #".*"
+              :access-control-allow-methods [:get :post :patch :put :delete])
+             {:request-method :options
+              :headers {"origin" "http://foo.com"}
+              :uri "/"}))))

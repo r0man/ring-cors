@@ -17,7 +17,7 @@
              (seq allowed-origins)
              (seq allowed-methods)
              (some #(re-matches % origin) allowed-origins)
-             ((:request-method request) allowed-methods))
+             (contains? allowed-methods (:request-method request)))
       true false)))
 
 (defn header-name
