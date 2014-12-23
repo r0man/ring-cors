@@ -82,23 +82,20 @@
                v)))
     {} headers)))
 
-(defn add-origin
+(defn add-headers
   "Add the access control headers using the request's origin to the response."
   [request access-control response]
-  (let [allowed-methods (access-control :access-control-allow-methods)]
-    (if-let [origin (origin request)]
-      (update-in response [:headers] merge
-                 {:access-control-allow-origin origin
-                  :access-control-allow-methods allowed-methods})
-      response)))
+  (if-let [origin (origin request)]
+    (update-in response [:headers] merge
+               (assoc access-control :access-control-allow-origin origin))
+    response))
 
 (defn add-allowed-headers
   "Adds the allowed headers to the request"
-  [request access-control response]
+  [request allowed-headers response]
   (if (preflight? request)
     (let [request-headers (get-in request
                                   [:headers "access-control-request-headers"])
-          allowed-headers (access-control :access-control-allow-headers)
           allowed-headers (if (= allowed-headers :any)
                             (string-to-set request-headers)
                             allowed-headers)]
@@ -113,9 +110,12 @@
   "Add the access-control headers to the response based on the rules
   and what came on the header."
   [request access-control response]
-  (let [unnormalized-resp (->> response
-                               (add-origin request access-control)
-                               (add-allowed-headers request access-control))]
+  (let [allowed-headers (access-control :access-control-allow-headers)
+        rest-of-headers (dissoc access-control
+                                :access-control-allow-headers)
+        unnormalized-resp (->> response
+                               (add-headers request rest-of-headers)
+                               (add-allowed-headers request allowed-headers))]
     (update-in unnormalized-resp [:headers] normalize-headers)))
 
 (defn normalize-config
