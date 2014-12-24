@@ -21,7 +21,7 @@
   "Returns true if the request is a preflight request and all the headers that
   it's going to use are allowed. Returns false otherwise."
   [request allowed-headers]
-  (if (= allowed-headers :any)
+  (if (nil? allowed-headers)
     true
     (let [headers (get-in request [:headers
                                    "access-control-request-headers"] "")
@@ -96,7 +96,7 @@
   (if (preflight? request)
     (let [request-headers (get-in request
                                   [:headers "access-control-request-headers"])
-          allowed-headers (if (= allowed-headers :any)
+          allowed-headers (if (nil? allowed-headers)
                             (string-to-set request-headers)
                             allowed-headers)]
       (if allowed-headers

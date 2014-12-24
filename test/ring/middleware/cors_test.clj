@@ -64,7 +64,6 @@
             :body "preflight complete"}
            ((wrap-cors (fn [_] {})
                        :access-control-allow-origin #"http://example.com"
-                       :access-control-allow-headers :any
                        :access-control-allow-methods #{:get :put :post})
             {:request-method :options
              :uri "/"
