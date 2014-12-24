@@ -76,7 +76,8 @@
                      :uri "/"
                      :headers {"origin" "http://example.com"
                                "access-control-request-method" "POST"
-                               "access-control-request-headers" "ACCEPT, CONTENT-TYPE"}})
+                               "access-control-request-headers"
+                               "ACCEPT, CONTENT-TYPE"}})
            {:status 200
             :headers {"Access-Control-Allow-Origin" "http://example.com"
                       "Access-Control-Allow-Headers" "Accept, Content-Type"
