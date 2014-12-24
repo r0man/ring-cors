@@ -1,11 +1,12 @@
 (ns ring.middleware.cors
   "Ring middleware for Cross-Origin Resource Sharing."
-  (:require [clojure.string :as str]
-            [clojure.set :as set]))
+  (:require [clojure.set :as set]
+            [clojure.string :as str]
+            [ring.util.response :refer [get-header]]))
 
 (defn origin
   "Returns the Origin request header."
-  [request] (get (:headers request) "origin"))
+  [request] (get-header request "origin"))
 
 (defn preflight?
   "Returns true if the request is a preflight request"
@@ -27,12 +28,9 @@
   [request allowed-headers]
   (if (nil? allowed-headers)
     true
-    (let [headers (get-in request [:headers
-                                   "access-control-request-headers"] "")
-          headers-set (parse-headers headers)
-          allowed-headers-set (set (map name allowed-headers))]
-      (= (count allowed-headers)
-         (count (clojure.set/intersection allowed-headers-set headers-set))))))
+    (set/subset?
+     (parse-headers (get-header request "access-control-request-headers"))
+     (set (map name allowed-headers)))))
 
 (defn allow-method?
   "In the case of regular requests it checks if the request-method is allowed.
@@ -98,8 +96,7 @@
   "Adds the allowed headers to the request"
   [request allowed-headers response]
   (if (preflight? request)
-    (let [request-headers (get-in request
-                                  [:headers "access-control-request-headers"])
+    (let [request-headers (get-header request "access-control-request-headers")
           allowed-headers (if (nil? allowed-headers)
                             (parse-headers request-headers)
                             allowed-headers)]

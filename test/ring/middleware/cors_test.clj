@@ -38,7 +38,7 @@
 (defn handler [request]
   ((wrap-cors (fn [_] {})
               :access-control-allow-origin #"http://example.com"
-              :access-control-allow-headers #{:x-custom-header}
+              :access-control-allow-headers #{:accept :content-type}
               :access-control-allow-methods #{:get :put :post})
    request))
 
@@ -46,10 +46,10 @@
   (testing "whitelist concrete headers"
     (let [headers {"origin" "http://example.com"
                    "access-control-request-method" "POST"
-                   "access-control-request-headers" "x-custom-header"}]
+                   "access-control-request-headers" "Accept, Content-Type"}]
       (is (= {:status 200,
               :headers {"Access-Control-Allow-Origin" "http://example.com"
-                        "Access-Control-Allow-Headers" "X-Custom-Header"
+                        "Access-Control-Allow-Headers" "Accept, Content-Type"
                         "Access-Control-Allow-Methods" "GET, POST, PUT"}
               :body "preflight complete"}
              (handler {:request-method :options
@@ -76,10 +76,10 @@
                      :uri "/"
                      :headers {"origin" "http://example.com"
                                "access-control-request-method" "POST"
-                               "access-control-request-headers" "X-CUSTOM-HEADER"}})
+                               "access-control-request-headers" "ACCEPT, CONTENT-TYPE"}})
            {:status 200
             :headers {"Access-Control-Allow-Origin" "http://example.com"
-                      "Access-Control-Allow-Headers" "X-Custom-Header"
+                      "Access-Control-Allow-Headers" "Accept, Content-Type"
                       "Access-Control-Allow-Methods" "GET, POST, PUT"}
             :body "preflight complete"})))
 
@@ -98,6 +98,18 @@
                  {:request-method :options
                   :uri "/"
                   :headers headers}))))))
+
+(deftest test-preflight-header-subset
+  (is (= (handler {:request-method :options
+                   :uri "/"
+                   :headers {"origin" "http://example.com"
+                             "access-control-request-method" "POST"
+                             "access-control-request-headers" "Accept"}})
+         {:status 200
+          :headers {"Access-Control-Allow-Origin" "http://example.com"
+                    "Access-Control-Allow-Headers" "Accept, Content-Type"
+                    "Access-Control-Allow-Methods" "GET, POST, PUT"}
+          :body "preflight complete"})))
 
 (deftest test-cors
   (testing "success"
