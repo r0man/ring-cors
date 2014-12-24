@@ -38,9 +38,9 @@
   (let [preflight-name [:headers "access-control-request-method"]
         request-method (if (preflight? request)
                          (keyword (str/lower-case
-                                    (get-in request preflight-name "")))
+                                   (get-in request preflight-name "")))
                          (:request-method request))]
-        (contains? allowed-methods request-method)))
+    (contains? allowed-methods request-method)))
 
 (defn allow-request?
   "Returns true if the request's origin matches the access control
@@ -73,14 +73,14 @@
   [headers]
   (let [upcase #(str/join ", " (sort (map (comp str/upper-case name) %)))
         to-header-names #(str/join ", " (sort (map (comp header-name name) %)))]
-  (reduce
-    (fn [acc [k v]]
-      (assoc acc (header-name k)
-             (case k
-               :access-control-allow-methods (upcase v)
-               :access-control-allow-headers (to-header-names v)
-               v)))
-    {} headers)))
+    (reduce
+     (fn [acc [k v]]
+       (assoc acc (header-name k)
+              (case k
+                :access-control-allow-methods (upcase v)
+                :access-control-allow-headers (to-header-names v)
+                v)))
+     {} headers)))
 
 (defn add-headers
   "Add the access control headers using the request's origin to the response."
