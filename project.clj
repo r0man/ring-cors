@@ -6,7 +6,7 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.6.0"]]
   :deploy-repositories [["releases" :clojars]]
-  :plugins [[jonase/eastwood "0.1.1"]
+  :plugins [[jonase/eastwood "0.2.1"]
             [lein-bikeshed "0.1.6"]
             [lein-difftest "2.0.0"]]
   :eastwood {:exclude-linters [:bad-arglists]}
