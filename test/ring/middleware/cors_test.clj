@@ -71,6 +71,18 @@
                        "access-control-request-method" "POST"
                        "access-control-request-headers" "x-foo, x-bar"}}))))
 
+  (testing "whitelist headers ignore case"
+    (is (= (handler {:request-method :options
+                     :uri "/"
+                     :headers {"origin" "http://example.com"
+                               "access-control-request-method" "POST"
+                               "access-control-request-headers" "X-CUSTOM-HEADER"}})
+           {:status 200
+            :headers {"Access-Control-Allow-Origin" "http://example.com"
+                      "Access-Control-Allow-Headers" "X-Custom-Header"
+                      "Access-Control-Allow-Methods" "GET, POST, PUT"}
+            :body "preflight complete"})))
+
   (testing "method not allowed"
     (is (nil? (handler
                {:request-method :options
@@ -133,3 +145,13 @@
                       "Access-Control-Allow-Methods" "GET"
                       "Access-Control-Expose-Headers" "Etag"}}
            response))))
+
+(deftest test-parse-headers
+  (are [headers expected]
+    (= (parse-headers headers) expected)
+    nil #{}
+    "" #{}
+    "accept" #{"accept"}
+    "Accept" #{"accept"}
+    "Accept, Content-Type" #{"accept" "content-type"}
+    " Accept ,  Content-Type " #{"accept" "content-type"}))

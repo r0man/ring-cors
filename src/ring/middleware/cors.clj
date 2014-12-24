@@ -12,10 +12,14 @@
   [request]
   (= (request :request-method) :options))
 
-(defn string-to-set
+(defn parse-headers
   "Transforms a comma-separated string to a set"
-  [the-string]
-  (set (map str/trim (str/split the-string #","))))
+  [s]
+  (->> (str/split (str s) #",")
+       (remove str/blank?)
+       (map str/trim)
+       (map str/lower-case)
+       (set)))
 
 (defn allow-preflight-headers?
   "Returns true if the request is a preflight request and all the headers that
@@ -25,7 +29,7 @@
     true
     (let [headers (get-in request [:headers
                                    "access-control-request-headers"] "")
-          headers-set (string-to-set headers)
+          headers-set (parse-headers headers)
           allowed-headers-set (set (map name allowed-headers))]
       (= (count allowed-headers)
          (count (clojure.set/intersection allowed-headers-set headers-set))))))
@@ -97,7 +101,7 @@
     (let [request-headers (get-in request
                                   [:headers "access-control-request-headers"])
           allowed-headers (if (nil? allowed-headers)
-                            (string-to-set request-headers)
+                            (parse-headers request-headers)
                             allowed-headers)]
       (if allowed-headers
         (update-in response [:headers] merge
