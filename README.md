@@ -16,7 +16,7 @@ Via Clojars: https://clojars.org/ring-cors
     (require '[ring.middleware.cors :refer [wrap-cors]])
 
     (def handler
-      (wrap-cors my-routes :access-control-allow-origin #"http://example.com"
+      (wrap-cors my-routes :access-control-allow-origin [#"http://example.com"]
                            :access-control-allow-methods [:get :put :post :delete]))
 
 ## License
