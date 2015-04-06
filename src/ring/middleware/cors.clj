@@ -145,6 +145,6 @@
           (add-access-control request access-control blank-response))
         (if (origin request)
           (if (allow-request? request access-control)
-            (let [response (handler request)]
+            (if-let [response (handler request)]
               (add-access-control request access-control response)))
           (handler request))))))

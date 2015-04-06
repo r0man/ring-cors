@@ -126,7 +126,8 @@
 
 (deftest test-no-cors-header-when-handler-returns-nil
   (is (nil? ((wrap-cors (fn [_] nil)
-                        :access-control-allow-origin #".*example.com")
+                        :access-control-allow-origin #".*example.com"
+                        :access-control-allow-methods [:get])
              {:request-method
               :get :uri "/"
               :headers {"origin" "http://example.com"}}))))
@@ -147,14 +148,15 @@
               :uri "/"}))))
 
 (deftest additional-headers
-  (let [response ((wrap-cors (fn [_] nil)
+  (let [response ((wrap-cors (fn [_] {:status 200})
                              :access-control-allow-origin #".*"
                              :access-control-allow-methods [:get]
                              :access-control-expose-headers "Etag")
                   {:request-method :get
                    :uri "/"
                    :headers {"origin" "http://example.com"}})]
-    (is (= {:headers {"Access-Control-Allow-Origin" "http://example.com"
+    (is (= {:status 200
+            :headers {"Access-Control-Allow-Origin" "http://example.com"
                       "Access-Control-Allow-Methods" "GET"
                       "Access-Control-Expose-Headers" "Etag"}}
            response))))
