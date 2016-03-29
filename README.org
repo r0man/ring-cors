@@ -1,0 +1,24 @@
+* Ring CORS
+
+  [[https://clojars.org/ring-cors][https://img.shields.io/clojars/v/ring-cors.svg]]
+  [[https://travis-ci.org/r0man/ring-cors][https://travis-ci.org/r0man/ring-cors.svg]]
+  [[http://jarkeeper.com/r0man/ring-cors][http://jarkeeper.com/r0man/ring-cors/status.svg]]
+  [[http://jarkeeper.com/r0man/ring-cors][https://jarkeeper.com/r0man/ring-cors/downloads.svg]]
+
+  [[https://github.com/ring-clojure][Ring]] middleware for [[https://en.wikipedia.org/wiki/Cross-origin_resource_sharing][Cross-Origin Resource Sharing]].
+
+** Usage
+
+   #+BEGIN_EXAMPLE
+    (require '[ring.middleware.cors :refer [wrap-cors]])
+
+    (def handler
+      (wrap-cors my-routes :access-control-allow-origin [#"http://example.com"]
+                           :access-control-allow-methods [:get :put :post :delete]))
+   #+END_EXAMPLE
+
+** License
+
+   Copyright (C) 2013-2016 r0man
+
+   Distributed under the Eclipse Public License, the same as Clojure.
