@@ -9,7 +9,7 @@
 
 ** Usage
 
-   #+BEGIN_EXAMPLE
+   #+BEGIN_EXAMPLE clojure
     (require '[ring.middleware.cors :refer [wrap-cors]])
 
     (def handler
