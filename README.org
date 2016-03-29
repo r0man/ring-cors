@@ -1,4 +1,4 @@
-o* Ring CORS
+* Ring CORS
 
   [[https://clojars.org/ring-cors][https://img.shields.io/clojars/v/ring-cors.svg]]
   [[https://travis-ci.org/r0man/ring-cors][https://travis-ci.org/r0man/ring-cors.svg]]
