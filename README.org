@@ -1,4 +1,4 @@
-* Ring CORS
+o* Ring CORS
 
   [[https://clojars.org/ring-cors][https://img.shields.io/clojars/v/ring-cors.svg]]
   [[https://travis-ci.org/r0man/ring-cors][https://travis-ci.org/r0man/ring-cors.svg]]
@@ -9,13 +9,13 @@
 
 ** Usage
 
-   #+BEGIN_EXAMPLE clojure
+   #+BEGIN_SRC clojure
     (require '[ring.middleware.cors :refer [wrap-cors]])
 
     (def handler
       (wrap-cors my-routes :access-control-allow-origin [#"http://example.com"]
                            :access-control-allow-methods [:get :put :post :delete]))
-   #+END_EXAMPLE
+   #+END_SRC
 
 ** License
 
