@@ -173,3 +173,17 @@
     "Accept" #{"accept"}
     "Accept, Content-Type" #{"accept" "content-type"}
     " Accept ,  Content-Type " #{"accept" "content-type"}))
+
+(deftest test-preflight-headers?
+  (testing "Acceptable allowed-headers"
+    (let [headers {"Access-Control-Allow-Headers" "Accept, Content-Type"}
+          request {:request-method :get
+                   :uri "/"
+                   :headers headers}]
+      (are [allowed-headers]
+          (is (true? (allow-preflight-headers? request allowed-headers)))
+        [:accept :content-type]
+        [:Accept :Content-Type]
+        ["accept" "content-type"]
+        ["Accept" "Content-Type"]
+        ["  cOntenT-typE " " acCePt"]))))

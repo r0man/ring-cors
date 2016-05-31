@@ -13,14 +13,20 @@
   [request]
   (= (request :request-method) :options))
 
+(defn lower-case-set
+  "Converts strings in a sequence to lower-case, and put them into a set"
+  [s]
+  (->> s
+      (map str/trim)
+      (map str/lower-case)
+      (set)))
+
 (defn parse-headers
   "Transforms a comma-separated string to a set"
   [s]
   (->> (str/split (str s) #",")
        (remove str/blank?)
-       (map str/trim)
-       (map str/lower-case)
-       (set)))
+       (lower-case-set)))
 
 (defn allow-preflight-headers?
   "Returns true if the request is a preflight request and all the headers that
@@ -30,7 +36,7 @@
     true
     (set/subset?
      (parse-headers (get-header request "access-control-request-headers"))
-     (set (map name allowed-headers)))))
+     (lower-case-set (map name allowed-headers)))))
 
 (defn allow-method?
   "In the case of regular requests it checks if the request-method is allowed.
