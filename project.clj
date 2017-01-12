@@ -5,10 +5,10 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [ring/ring-core "1.4.0"]]
+                 [ring/ring-core "1.5.1"]]
   :deploy-repositories [["releases" :clojars]]
   :plugins [[jonase/eastwood "0.2.3"]
-            [lein-bikeshed "0.3.0"]
+            [lein-bikeshed "0.4.1"]
             [lein-difftest "2.0.0"]]
   :eastwood {:exclude-linters [:bad-arglists]}
   :aliases {"ci" ["do" ["difftest"] ["lint"]]
