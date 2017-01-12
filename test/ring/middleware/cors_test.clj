@@ -85,20 +85,20 @@
             :body "preflight complete"})))
 
   (testing "method not allowed"
-    (is (nil? (handler
-               {:request-method :options
-                :uri "/"
-                :headers {"origin" "http://example.com"
-                          "access-control-request-method" "DELETE"}}))))
+    (is (empty? (handler
+                 {:request-method :options
+                  :uri "/"
+                  :headers {"origin" "http://example.com"
+                            "access-control-request-method" "DELETE"}}))))
 
   (testing "header not allowed"
     (let [headers {"origin" "http://example.com"
                    "access-control-request-method" "GET"
                    "access-control-request-headers" "x-another-custom-header"}]
-      (is (nil? (handler
-                 {:request-method :options
-                  :uri "/"
-                  :headers headers}))))))
+      (is (empty? (handler
+                   {:request-method :options
+                    :uri "/"
+                    :headers headers}))))))
 
 (deftest test-preflight-header-subset
   (is (= (handler {:request-method :options
@@ -120,9 +120,9 @@
                      :uri "/"
                      :headers {"origin" "http://example.com"}}))))
   (testing "failure"
-    (is (nil? (handler {:request-method :get
-                        :uri "/"
-                        :headers {"origin" "http://foo.com"}})))))
+    (is (empty? (handler {:request-method :get
+                          :uri "/"
+                          :headers {"origin" "http://foo.com"}})))))
 
 (deftest test-no-cors-header-when-handler-returns-nil
   (is (nil? ((wrap-cors (fn [_] nil)
@@ -133,19 +133,19 @@
               :headers {"origin" "http://example.com"}}))))
 
 (deftest test-options-without-cors-header
-  (is (nil? ((wrap-cors
-              (fn [_] nil)
-              :access-control-allow-origin #".*example.com")
-             {:request-method :options :uri "/"}))))
+  (is (empty? ((wrap-cors
+                (fn [_] {})
+                :access-control-allow-origin #".*example.com")
+               {:request-method :options :uri "/"}))))
 
 (deftest test-method-not-allowed
-  (is (nil? ((wrap-cors
-              (fn [_] nil)
-              :access-control-allow-origin #".*"
-              :access-control-allow-methods [:get :post :patch :put :delete])
-             {:request-method :options
-              :headers {"origin" "http://foo.com"}
-              :uri "/"}))))
+  (is (empty? ((wrap-cors
+                (fn [_] {})
+                :access-control-allow-origin #".*"
+                :access-control-allow-methods [:get :post :patch :put :delete])
+               {:request-method :options
+                :headers {"origin" "http://foo.com"}
+                :uri "/"}))))
 
 (deftest additional-headers
   (let [response ((wrap-cors (fn [_] {:status 200})

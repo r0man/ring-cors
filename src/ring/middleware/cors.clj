@@ -140,7 +140,7 @@
         (wrap-cors
          :access-control-allow-origin #\"http://example.com\"
          :access-control-allow-methods [:get :put :post :delete])))
-"
+  "
   [handler & access-control]
   (let [access-control (normalize-config access-control)]
     (fn [request]
@@ -152,5 +152,6 @@
         (if (origin request)
           (if (allow-request? request access-control)
             (if-let [response (handler request)]
-              (add-access-control request access-control response)))
+              (add-access-control request access-control response))
+            (handler request))
           (handler request))))))
