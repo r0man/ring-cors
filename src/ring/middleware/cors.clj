@@ -132,6 +132,19 @@
       (update-in [:access-control-allow-headers] #(if (coll? %) (set %) %))
       (update-in [:access-control-allow-origin] #(if (sequential? %) % [%]))))
 
+(defn handle-cors [handler request access-control response-handler]
+  (if (and (preflight? request) (allow-request? request access-control))
+    (let [blank-response {:status 200
+                          :headers {}
+                          :body "preflight complete"}]
+      (response-handler request access-control blank-response))
+    (if (origin request)
+      (if (allow-request? request access-control)
+        (if-let [response (handler request)]
+          (response-handler request access-control response))
+        (handler request))
+      (handler request))))
+
 (defn wrap-cors
   "Middleware that adds Cross-Origin Resource Sharing headers.
 
@@ -144,14 +157,4 @@
   [handler & access-control]
   (let [access-control (normalize-config access-control)]
     (fn [request]
-      (if (and (preflight? request) (allow-request? request access-control))
-        (let [blank-response {:status 200
-                              :headers {}
-                              :body "preflight complete"}]
-          (add-access-control request access-control blank-response))
-        (if (origin request)
-          (if (allow-request? request access-control)
-            (if-let [response (handler request)]
-              (add-access-control request access-control response))
-            (handler request))
-          (handler request))))))
+      (handle-cors handler request access-control add-access-control))))
