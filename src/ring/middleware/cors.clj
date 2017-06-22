@@ -1,8 +1,26 @@
 (ns ring.middleware.cors
   "Ring middleware for Cross-Origin Resource Sharing."
   (:require [clojure.set :as set]
-            [clojure.string :as str]
-            [ring.util.response :refer [get-header]]))
+            [clojure.string :as str]))
+
+; find-header / get-header have been copied from ring-core
+; to reduce dependency on external libs
+
+(defn- find-header
+  "Looks up a header in a Ring response (or request) case insensitively,
+  returning the header map entry, or nil if not present."
+  {:added "1.4"}
+  [resp ^String header-name]
+  (->> (:headers resp)
+       (filter #(.equalsIgnoreCase header-name (key %)))
+       (first)))
+
+(defn- get-header
+  "Looks up a header in a Ring response (or request) case insensitively,
+  returning the value of the header, or nil if not present."
+  {:added "1.2"}
+  [resp header-name]
+  (some-> resp (find-header header-name) val))
 
 (defn origin
   "Returns the Origin request header."
