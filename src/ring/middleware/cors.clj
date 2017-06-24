@@ -9,7 +9,6 @@
 (defn- find-header
   "Looks up a header in a Ring response (or request) case insensitively,
   returning the header map entry, or nil if not present."
-  {:added "1.4"}
   [resp ^String header-name]
   (->> (:headers resp)
        (filter #(.equalsIgnoreCase header-name (key %)))
@@ -18,7 +17,6 @@
 (defn- get-header
   "Looks up a header in a Ring response (or request) case insensitively,
   returning the value of the header, or nil if not present."
-  {:added "1.2"}
   [resp header-name]
   (some-> resp (find-header header-name) val))
 
