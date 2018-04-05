@@ -187,3 +187,32 @@
         ["accept" "content-type"]
         ["Accept" "Content-Type"]
         ["  cOntenT-typE " " acCePt"]))))
+
+(deftest test-dynamic-allow-origin
+  (testing "Testing an allow-origin with a callback function
+            for dynamic checks, where it returns true (allowed)"
+    (let [response ((wrap-cors
+                     (fn [_] {})
+                     :access-control-allow-origin
+                      (fn my-callback [req] true)
+                     :access-control-allow-methods
+                      [:get :post :patch :put :delete])
+                    {:request-method :get
+                     :headers        {"origin" "http://foo.com"}
+                     :uri            "/"})]
+      (is (= {:headers
+              {"Access-Control-Allow-Methods" "DELETE, GET, PATCH, POST, PUT"
+               "Access-Control-Allow-Origin" "http://foo.com"}}
+             response))))
+  (testing "Testing an allow-origin with a callback function for dynamic checks,
+           where it returns false (not allowed)"
+    (let [response ((wrap-cors
+                     (fn [_] {})
+                     :access-control-allow-origin
+                      (fn my-callback [req] false)
+                     :access-control-allow-methods
+                      [:get :post :patch :put :delete])
+                    {:request-method :get
+                     :headers        {"origin" "http://foo.com"}
+                     :uri            "/"})]
+      (is (empty? response)))))

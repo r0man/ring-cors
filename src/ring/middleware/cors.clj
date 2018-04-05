@@ -75,9 +75,15 @@
         allowed-headers (:access-control-allow-headers access-control)
         allowed-methods (:access-control-allow-methods access-control)]
     (if (and origin
-             (seq allowed-origins)
+             (if (fn? allowed-origins)
+               true
+               (seq allowed-origins))
              (seq allowed-methods)
-             (some #(re-matches % origin) allowed-origins)
+             (if (fn? allowed-origins)
+               (allowed-origins request)
+               (some #(re-matches % origin) allowed-origins))
+             ;;...or else it's a predefined collection,
+             ;;do a normal existence check.
              (if (preflight? request)
                (allow-preflight-headers? request allowed-headers)
                true)
@@ -146,7 +152,10 @@
   (-> (apply hash-map access-control)
       (update-in [:access-control-allow-methods] set)
       (update-in [:access-control-allow-headers] #(if (coll? %) (set %) %))
-      (update-in [:access-control-allow-origin] #(if (sequential? %) % [%]))))
+      (update-in [:access-control-allow-origin] #(if (or (sequential? %)
+                                                         (fn? %))
+                                                   %
+                                                   [%]))))
 
 (defn handle-cors [handler request access-control response-handler]
   (if (and (preflight? request) (allow-request? request access-control))
