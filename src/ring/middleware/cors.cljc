@@ -3,16 +3,23 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
-; find-header / get-header have been copied from ring-core
-; to reduce dependency on external libs
+;; find-header / get-header have been copied from ring-core
+;; to reduce dependency on external libs
+
+(def preflight-complete-response
+  "The default preflight complete response."
+  {:status 200
+   :headers {}
+   :body "preflight complete"})
 
 (defn- find-header
   "Looks up a header in a Ring response (or request) case insensitively,
   returning the header map entry, or nil if not present."
   [resp ^String header-name]
-  (->> (:headers resp)
-       (filter #(.equalsIgnoreCase header-name (key %)))
-       (first)))
+  (let [header-name (str/upper-case header-name)]
+    (->> (:headers resp)
+         (filter #(= header-name (str/upper-case (key %))))
+         (first))))
 
 (defn- get-header
   "Looks up a header in a Ring response (or request) case insensitively,
@@ -33,9 +40,9 @@
   "Converts strings in a sequence to lower-case, and put them into a set"
   [s]
   (->> s
-      (map str/trim)
-      (map str/lower-case)
-      (set)))
+       (map str/trim)
+       (map str/lower-case)
+       (set)))
 
 (defn parse-headers
   "Transforms a comma-separated string to a set"
@@ -157,18 +164,30 @@
                                                    %
                                                    [%]))))
 
-(defn handle-cors [handler request access-control response-handler]
-  (if (and (preflight? request) (allow-request? request access-control))
-    (let [blank-response {:status 200
-                          :headers {}
-                          :body "preflight complete"}]
-      (response-handler request access-control blank-response))
+(defn handle-cors
+  "Handle a synchronous CORS `request`."
+  [handler request access-control response-handler]
+  (if (and (preflight? request)
+           (allow-request? request access-control))
+    (response-handler request access-control preflight-complete-response)
     (if (origin request)
       (if (allow-request? request access-control)
         (if-let [response (handler request)]
           (response-handler request access-control response))
         (handler request))
       (handler request))))
+
+(defn- handle-cors-async
+  "Handle an asynchronous CORS `request`."
+  [handler request respond raise access-control response-handler]
+  (if (and (preflight? request)
+           (allow-request? request access-control))
+    (respond (response-handler request access-control preflight-complete-response))
+    (if (origin request)
+      (if (allow-request? request access-control)
+        (handler request #(respond (response-handler request access-control %)) raise)
+        (handler request respond raise))
+      (handler request respond raise))))
 
 (defn wrap-cors
   "Middleware that adds Cross-Origin Resource Sharing headers.
@@ -181,5 +200,8 @@
   "
   [handler & access-control]
   (let [access-control (normalize-config access-control)]
-    (fn [request]
-      (handle-cors handler request access-control add-access-control))))
+    (fn
+      ([request]
+       (handle-cors handler request access-control add-access-control))
+      ([request respond raise]
+       (handle-cors-async handler request respond raise access-control add-access-control)))))

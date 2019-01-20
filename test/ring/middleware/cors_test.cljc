@@ -1,33 +1,33 @@
 (ns ring.middleware.cors-test
-  (:require [clojure.test :refer :all]
-            [ring.middleware.cors :refer :all]))
+  (:require [clojure.test :refer [are deftest is testing]]
+            [ring.middleware.cors :as cors]))
 
 (deftest test-allow-request?
   (testing "with empty vector"
-    (is (not (allow-request? {:headers {"origin" "http://eample.com"}}
-                             {:access-control-allow-origin []}))))
+    (is (not (cors/allow-request? {:headers {"origin" "http://eample.com"}}
+                                  {:access-control-allow-origin []}))))
   (testing "with one regular expressions"
     (are [origin expected]
-      (is (= expected
-             (allow-request?
-              {:headers {"origin" origin}
-               :request-method :get}
-              {:access-control-allow-origin [#"http://(.*\.)?burningswell.com"]
-               :access-control-allow-methods #{:get :put :post}})))
+        (is (= expected
+               (cors/allow-request?
+                {:headers {"origin" origin}
+                 :request-method :get}
+                {:access-control-allow-origin [#"http://(.*\.)?burningswell.com"]
+                 :access-control-allow-methods #{:get :put :post}})))
       nil false
       "" false
       "http://example.com" false
       "http://burningswell.com" true))
   (testing "with multiple regular expressions"
     (are [origin expected]
-      (is (= expected
-             (allow-request?
-              {:headers {"origin" origin}
-               :request-method :get}
-              {:access-control-allow-origin
-               [#"http://(.*\.)?burningswell.com"
-                #"http://example.com"]
-               :access-control-allow-methods #{:get :put :post}})))
+        (is (= expected
+               (cors/allow-request?
+                {:headers {"origin" origin}
+                 :request-method :get}
+                {:access-control-allow-origin
+                 [#"http://(.*\.)?burningswell.com"
+                  #"http://example.com"]
+                 :access-control-allow-methods #{:get :put :post}})))
       nil false
       "" false
       "http://example.com" true
@@ -35,12 +35,17 @@
       "http://api.burningswell.com" true
       "http://dev.burningswell.com" true)))
 
-(defn handler [request]
-  ((wrap-cors (fn [_] {})
-              :access-control-allow-origin #"http://example.com"
-              :access-control-allow-headers #{:accept :content-type}
-              :access-control-allow-methods #{:get :put :post})
-   request))
+(defn handler [& args]
+  (apply
+   (cors/wrap-cors
+    (fn
+      ([request] {})
+      ([request respond raise]
+       (respond request)))
+    :access-control-allow-origin #"http://example.com"
+    :access-control-allow-headers #{:accept :content-type}
+    :access-control-allow-methods #{:get :put :post})
+   args))
 
 (deftest test-preflight
   (testing "whitelist concrete headers"
@@ -62,9 +67,9 @@
                       "Access-Control-Allow-Headers" "X-Bar, X-Foo"
                       "Access-Control-Allow-Methods" "GET, POST, PUT"}
             :body "preflight complete"}
-           ((wrap-cors (fn [_] {})
-                       :access-control-allow-origin #"http://example.com"
-                       :access-control-allow-methods #{:get :put :post})
+           ((cors/wrap-cors (fn [_] {})
+                            :access-control-allow-origin #"http://example.com"
+                            :access-control-allow-methods #{:get :put :post})
             {:request-method :options
              :uri "/"
              :headers {"origin" "http://example.com"
@@ -124,22 +129,44 @@
                           :uri "/"
                           :headers {"origin" "http://foo.com"}})))))
 
+(deftest test-cors-async
+  (testing "success"
+    (is (= {:request-method :post,
+            :uri "/",
+            :headers
+            {"Origin" "http://example.com",
+             "Access-Control-Allow-Methods" "GET, POST, PUT",
+             "Access-Control-Allow-Origin" "http://example.com"}}
+           (handler {:request-method :post
+                     :uri "/"
+                     :headers {"origin" "http://example.com"}}
+                    identity identity))))
+  (testing "failure"
+    (is (= {:request-method :get,
+            :uri "/",
+            :headers {"origin" "http://foo.com"}}
+           (handler
+            {:request-method :get
+             :uri "/"
+             :headers {"origin" "http://foo.com"}}
+            identity identity)))))
+
 (deftest test-no-cors-header-when-handler-returns-nil
-  (is (nil? ((wrap-cors (fn [_] nil)
-                        :access-control-allow-origin #".*example.com"
-                        :access-control-allow-methods [:get])
+  (is (nil? ((cors/wrap-cors (fn [_] nil)
+                             :access-control-allow-origin #".*example.com"
+                             :access-control-allow-methods [:get])
              {:request-method
               :get :uri "/"
               :headers {"origin" "http://example.com"}}))))
 
 (deftest test-options-without-cors-header
-  (is (empty? ((wrap-cors
+  (is (empty? ((cors/wrap-cors
                 (fn [_] {})
                 :access-control-allow-origin #".*example.com")
                {:request-method :options :uri "/"}))))
 
 (deftest test-method-not-allowed
-  (is (empty? ((wrap-cors
+  (is (empty? ((cors/wrap-cors
                 (fn [_] {})
                 :access-control-allow-origin #".*"
                 :access-control-allow-methods [:get :post :patch :put :delete])
@@ -148,11 +175,11 @@
                 :uri "/"}))))
 
 (deftest additional-headers
-  (let [response ((wrap-cors (fn [_] {:status 200})
-                             :access-control-allow-credentials "true"
-                             :access-control-allow-origin #".*"
-                             :access-control-allow-methods [:get]
-                             :access-control-expose-headers "Etag")
+  (let [response ((cors/wrap-cors (fn [_] {:status 200})
+                                  :access-control-allow-credentials "true"
+                                  :access-control-allow-origin #".*"
+                                  :access-control-allow-methods [:get]
+                                  :access-control-expose-headers "Etag")
                   {:request-method :get
                    :uri "/"
                    :headers {"origin" "http://example.com"}})]
@@ -166,7 +193,7 @@
 
 (deftest test-parse-headers
   (are [headers expected]
-    (= (parse-headers headers) expected)
+      (= (cors/parse-headers headers) expected)
     nil #{}
     "" #{}
     "accept" #{"accept"}
@@ -181,7 +208,7 @@
                    :uri "/"
                    :headers headers}]
       (are [allowed-headers]
-          (is (true? (allow-preflight-headers? request allowed-headers)))
+          (is (true? (cors/allow-preflight-headers? request allowed-headers)))
         [:accept :content-type]
         [:Accept :Content-Type]
         ["accept" "content-type"]
@@ -191,12 +218,12 @@
 (deftest test-dynamic-allow-origin
   (testing "Testing an allow-origin with a callback function
             for dynamic checks, where it returns true (allowed)"
-    (let [response ((wrap-cors
+    (let [response ((cors/wrap-cors
                      (fn [_] {})
                      :access-control-allow-origin
-                      (fn my-callback [req] true)
+                     (fn my-callback [req] true)
                      :access-control-allow-methods
-                      [:get :post :patch :put :delete])
+                     [:get :post :patch :put :delete])
                     {:request-method :get
                      :headers        {"origin" "http://foo.com"}
                      :uri            "/"})]
@@ -206,12 +233,12 @@
              response))))
   (testing "Testing an allow-origin with a callback function for dynamic checks,
            where it returns false (not allowed)"
-    (let [response ((wrap-cors
+    (let [response ((cors/wrap-cors
                      (fn [_] {})
                      :access-control-allow-origin
-                      (fn my-callback [req] false)
+                     (fn my-callback [req] false)
                      :access-control-allow-methods
-                      [:get :post :patch :put :delete])
+                     [:get :post :patch :put :delete])
                     {:request-method :get
                      :headers        {"origin" "http://foo.com"}
                      :uri            "/"})]
